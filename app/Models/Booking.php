@@ -11,6 +11,8 @@ class Booking extends Model
 {
     use HasFactory;
 
+    protected $table = 'bookings';
+
     protected $fillable = [
         'user_id',
         'service_id',
@@ -24,13 +26,13 @@ class Booking extends Model
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(Users::class);
+        return $this->belongsTo(User::class);
     }
     /** 
      * Get the service that is booked.
      */
     public function service(): BelongsTo
     {
-        return $this->belongsTo(Services::class);
+        return $this->belongsTo(Service::class);
     }
 }
