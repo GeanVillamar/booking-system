@@ -9,38 +9,21 @@ use App\Models\Availability;
 
 class BookingController extends Controller
 {
-    /**
-     * Store a newly created booking in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+
     public function index()
     {
         $bookings = Booking::with(['user', 'service'])->get();
         return response()->json($bookings, 200);
     }
 
-    /**
-     * Store a newly created booking in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-
-
-
-
     public function store(Request $request)
     {
-        // $booking = Booking::create($request->all());
-        // return response()->json($booking, 201);
 
         // 1. Validar disponibilidad (Availabilities)
         $isAvailable = Availability::where('service_id', $request->service_id)
             ->where('available_date', $request->booking_date)
             ->where('start_time', '<=', $request->booking_time)
-            ->where('end_time', '>=', $request->booking_time)
+            ->where('end_time', '>', $request->booking_time)
             ->exists();
 
         if (!$isAvailable) {
@@ -53,6 +36,7 @@ class BookingController extends Controller
         $exists = Booking::where('service_id', $request->service_id)
             ->where('booking_date', $request->booking_date)
             ->where('booking_time', $request->booking_time)
+            ->whereIn('status', ['pending', 'confirmed'])
             ->exists();
 
         if ($exists) {
