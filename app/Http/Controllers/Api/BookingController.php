@@ -18,48 +18,37 @@ class BookingController extends Controller
 
     public function store(Request $request)
     {
-
-        // 1. Validar disponibilidad (Availabilities)
-        $isAvailable = Availability::where('service_id', $request->service_id)
-            ->where('available_date', $request->booking_date)
-            ->where('start_time', '<=', $request->booking_time)
-            ->where('end_time', '>', $request->booking_time)
-            ->exists();
-
-        if (!$isAvailable) {
-            return response()->json([
-                'message' => 'Horario no disponible'
-            ], 400);
-        }
-
-        // 2. Validar que no esté ocupado (Bookings)
-        $exists = Booking::where('service_id', $request->service_id)
+        //evitar reservas duplicadas
+        $existingBooking = Booking::where('service_id', $request->service_id)
             ->where('booking_date', $request->booking_date)
             ->where('booking_time', $request->booking_time)
-            ->whereIn('status', ['pending', 'confirmed'])
-            ->exists();
-
-        if ($exists) {
-            return response()->json([
-                'message' => 'Este horario ya está reservado'
-            ], 400);
+            ->first();
+        if ($existingBooking) {
+            return response()->json(['error' => 'Booking already exists for this time slot'], 400);
         }
 
-        // 3. Crear reserva
-        Booking::create([
+        //crear reserva
+        $booking = Booking::create([
             'user_id' => $request->user_id,
             'service_id' => $request->service_id,
             'booking_date' => $request->booking_date,
             'booking_time' => $request->booking_time,
-            'status' => 'pending',
         ]);
 
-        return response()->json([
-            'message' => 'Reserva creada correctamente'
-        ]);
+        //marcar disponibilidad como no disponible
+        $availability = Availability::where('service_id', $request->service_id)
+            ->where('available_date', $request->available_date)
+            ->where('start_time', $request->start_time)
+            ->where('end_time', $request->end_time)
+            ->first();
+        if ($availability) {
+            $availability->update(['is_available' => false]);
+        }
+
+        return response()->json($booking, 201);
     }
 
-    public function show($id)
+    public function show(int $id)
     {
         $booking = Booking::with(['user', 'service'])->findOrFail($id);
         return response()->json($booking, 200);
