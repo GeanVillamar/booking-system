@@ -7,6 +7,7 @@ use App\Models\Booking;
 use App\Http\Controllers\Controller;
 use App\Models\Availability;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 
 class BookingController extends Controller
 {
@@ -45,12 +46,25 @@ class BookingController extends Controller
         }
 
         //crear reserva
-        $booking = Booking::create([
-            'user_id' => $request->user_id,
-            'service_id' => $request->service_id,
-            'booking_date' => $request->booking_date,
-            'booking_time' => $request->booking_time,
-        ]);
+        // agregar transacción para asegurar que la reserva y la actualización de disponibilidad se realicen juntas
+        // $booking = Booking::create([
+        //     'user_id' => $request->user_id,
+        //     'service_id' => $request->service_id,
+        //     'booking_date' => $request->booking_date,
+        //     'booking_time' => $request->booking_time,
+        // ]);
+
+        $booking = DB::transaction(function () use ($request) {
+            $booking = Booking::create([
+                'user_id'      => $request->user_id, // ← del token, no del request
+                'service_id'   => $request->service_id,
+                'booking_date' => $request->booking_date, // ← reutilizar dato
+                'booking_time' => $request->booking_time,     // ← reutilizar dato
+            ]);
+
+            return $booking;
+        });
+
 
         //marcar disponibilidad como no disponible
         $availability = Availability::where('service_id', $request->service_id)
