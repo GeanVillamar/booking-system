@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Booking;
 use App\Http\Controllers\Controller;
 use App\Models\Availability;
+use Illuminate\Support\Facades\Validator;
 
 class BookingController extends Controller
 {
@@ -18,6 +19,22 @@ class BookingController extends Controller
 
     public function store(Request $request)
     {
+
+        //validar datos
+        $validator = Validator::make($request->all(), [
+            'user_id'      => 'required|exists:users,id',
+            'service_id'   => 'required|exists:services,id',
+            'booking_date' => 'required|date',
+            'booking_time' => 'required|date_format:H:i',
+            'status'       => 'nullable|in:pending,confirmed,cancelled',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
         //evitar reservas duplicadas
         $existingBooking = Booking::where('service_id', $request->service_id)
             ->where('booking_date', $request->booking_date)
