@@ -84,4 +84,27 @@ class BookingController extends Controller
         $booking = Booking::with(['user', 'service'])->findOrFail($id);
         return response()->json($booking, 200);
     }
+
+    public function update(Request $request, int $id)
+    {
+        $booking = Booking::findOrFail($id);
+
+        //validar datos
+        $validator = Validator::make($request->all(), [
+            'booking_date' => 'sometimes|required|date',
+            'booking_time' => 'sometimes|required|date_format:H:i',
+            'status'       => 'sometimes|in:pending,confirmed,cancelled',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        //actualizar reserva
+        $booking->update($request->only(['booking_date', 'booking_time', 'status']));
+
+        return response()->json($booking, 200);
+    }
 }
