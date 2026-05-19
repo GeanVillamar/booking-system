@@ -5,9 +5,11 @@ namespace App\Http\Controllers\Api;
 use Illuminate\Http\Request;
 use App\Models\Booking;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreBookingRequest;
 use App\Models\Availability;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+
 
 class BookingController extends Controller
 {
@@ -18,23 +20,11 @@ class BookingController extends Controller
         return response()->json($bookings, 200);
     }
 
-    public function store(Request $request)
+    public function store(StoreBookingRequest $request)
     {
 
-        //validar datos
-        $validator = Validator::make($request->all(), [
-            'user_id'      => 'required|exists:users,id',
-            'service_id'   => 'required|exists:services,id',
-            'booking_date' => 'required|date',
-            'booking_time' => 'required|date_format:H:i',
-            'status'       => 'nullable|in:pending,confirmed,cancelled',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'errors' => $validator->errors()
-            ], 422);
-        }
+        //validar datos desde el FormRequest
+        $validateData = $request->validated();
 
         //evitar reservas duplicadas
         $existingBooking = Booking::where('service_id', $request->service_id)
@@ -45,21 +35,12 @@ class BookingController extends Controller
             return response()->json(['error' => 'Booking already exists for this time slot'], 400);
         }
 
-        //crear reserva
-        // agregar transacción para asegurar que la reserva y la actualización de disponibilidad se realicen juntas
-        // $booking = Booking::create([
-        //     'user_id' => $request->user_id,
-        //     'service_id' => $request->service_id,
-        //     'booking_date' => $request->booking_date,
-        //     'booking_time' => $request->booking_time,
-        // ]);
-
-        $booking = DB::transaction(function () use ($request) {
+        $booking = DB::transaction(function () use ($validateData, $request) {
             $booking = Booking::create([
-                'user_id'      => $request->user_id, // ← del token, no del request
+                'user_id'      => $request->user_id,
                 'service_id'   => $request->service_id,
-                'booking_date' => $request->booking_date, // ← reutilizar dato
-                'booking_time' => $request->booking_time,     // ← reutilizar dato
+                'booking_date' => $request->booking_date,
+                'booking_time' => $request->booking_time,
             ]);
 
             return $booking;
