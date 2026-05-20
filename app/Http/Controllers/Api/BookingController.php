@@ -26,38 +26,47 @@ class BookingController extends Controller
         //validar datos desde el FormRequest
         $validateData = $request->validated();
 
-        //evitar reservas duplicadas
-        $existingBooking = Booking::where('service_id', $request->service_id)
-            ->where('booking_date', $request->booking_date)
-            ->where('booking_time', $request->booking_time)
-            ->first();
-        if ($existingBooking) {
-            return response()->json(['error' => 'Booking already exists for this time slot'], 400);
+        try {
+            $booking = DB::transaction(function () use ($validateData) {
+
+                // evitar reservas duplicadas
+                $exists = Booking::where('service_id', $validateData['service_id'])
+                    ->where('booking_date', $validateData['booking_date'])
+                    ->where('booking_time', $validateData['booking_time'])
+                    ->exists();
+
+                if ($exists) {
+                    abort(400, 'Booking already exists for this time slot');
+                }
+
+                $booking = Booking::create([
+                    'user_id'      => $validateData['user_id'],
+                    'service_id'   => $validateData['service_id'],
+                    'booking_date' => $validateData['booking_date'],
+                    'booking_time' => $validateData['booking_time'],
+                ]);
+
+                // actualizar disponibilidad
+                $availability = Availability::where('service_id', $validateData['service_id'])
+                    ->where('available_date', $validateData['booking_date'])
+                    ->where('start_time', $validateData['booking_time'])
+                    ->first();
+
+                if ($availability) {
+                    $availability->update([
+                        'is_available' => false
+                    ]);
+                }
+
+                return $booking;
+            });
+
+            return response()->json($booking, 201);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        $booking = DB::transaction(function () use ($validateData, $request) {
-            $booking = Booking::create([
-                'user_id'      => $request->user_id,
-                'service_id'   => $request->service_id,
-                'booking_date' => $request->booking_date,
-                'booking_time' => $request->booking_time,
-            ]);
-
-            return $booking;
-        });
-
-
-        //marcar disponibilidad como no disponible
-        $availability = Availability::where('service_id', $request->service_id)
-            ->where('available_date', $request->available_date)
-            ->where('start_time', $request->start_time)
-            ->where('end_time', $request->end_time)
-            ->first();
-        if ($availability) {
-            $availability->update(['is_available' => false]);
-        }
-
-        return response()->json($booking, 201);
     }
 
     public function show(int $id)
@@ -66,26 +75,27 @@ class BookingController extends Controller
         return response()->json($booking, 200);
     }
 
-    public function update(Request $request, int $id)
+    public function update(StoreBookingRequest $request, int $id)
     {
         $booking = Booking::findOrFail($id);
 
         //validar datos
-        $validator = Validator::make($request->all(), [
-            'booking_date' => 'sometimes|required|date',
-            'booking_time' => 'sometimes|required|date_format:H:i',
-            'status'       => 'sometimes|in:pending,confirmed,cancelled',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'errors' => $validator->errors()
-            ], 422);
-        }
+        $validateData = $request->validated();
 
         //actualizar reserva
-        $booking->update($request->only(['booking_date', 'booking_time', 'status']));
+        $booking->update([
+            'booking_date' => $validateData['booking_date'],
+            'booking_time' => $validateData['booking_time'],
+            'status'       => $validateData['status'],
+        ]);
 
         return response()->json($booking, 200);
+    }
+
+    public function destroy(int $id)
+    {
+        $booking = Booking::findOrFail($id);
+        $booking->delete();
+        return response()->json(null, 204);
     }
 }

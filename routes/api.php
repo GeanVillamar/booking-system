@@ -13,6 +13,8 @@ Route::apiResource('bookings', BookingController::class);
 Route::get('/bookings', [BookingController::class, 'index']);
 Route::post('/bookings', [BookingController::class, 'store']);
 Route::get('/bookings/{id}', [BookingController::class, 'show']);
+Route::put('/bookings/{id}', [BookingController::class, 'update']);
+Route::delete('/bookings/{id}', [BookingController::class, 'destroy']);
 
 //endpoint for services
 Route::get('/services', [ServiceController::class, 'index']);
