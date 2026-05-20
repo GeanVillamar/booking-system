@@ -16,7 +16,7 @@ class BookingController extends Controller
 
     public function index()
     {
-        $bookings = Booking::with(['user', 'service'])->get();
+        $bookings = Booking::with(['user', 'service'])->paginate(10);
         return response()->json($bookings, 200);
     }
 
