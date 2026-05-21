@@ -6,8 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\Booking;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreBookingRequest;
+use App\Http\Resources\BookingResource;
 use App\Models\Availability;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 
 
@@ -16,8 +16,11 @@ class BookingController extends Controller
 
     public function index()
     {
-        $bookings = Booking::with(['user', 'service'])->paginate(10);
-        return response()->json($bookings, 200);
+        $bookings = Booking::query()
+            ->with(['user', 'service'])
+            ->latest()
+            ->paginate(5);
+        return BookingResource::collection($bookings);
     }
 
     public function store(StoreBookingRequest $request)

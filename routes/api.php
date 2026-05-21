@@ -20,6 +20,8 @@ Route::delete('/bookings/{id}', [BookingController::class, 'destroy']);
 Route::get('/services', [ServiceController::class, 'index']);
 Route::post('/services', [ServiceController::class, 'store']);
 Route::get('/services/{id}', [ServiceController::class, 'show']);
+Route::put('/services/{id}', [ServiceController::class, 'update']);
+Route::delete('/services/{id}', [ServiceController::class, 'destroy']);
 
 //endpoint for users
 Route::get('/users', [UserController::class, 'index']);
