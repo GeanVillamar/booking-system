@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api;
 
-use Illuminate\Http\Request;
 use App\Models\Booking;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreBookingRequest;
@@ -61,7 +60,7 @@ class BookingController extends Controller
                     ]);
                 }
 
-                return $booking;
+                return (new BookingResource($booking))->resolve();
             });
 
             return response()->json($booking, 201);
@@ -72,16 +71,13 @@ class BookingController extends Controller
         }
     }
 
-    public function show(int $id)
+    public function show(Booking $booking): BookingResource
     {
-        $booking = Booking::with(['user', 'service'])->findOrFail($id);
-        return response()->json($booking, 200);
+        return new BookingResource($booking);
     }
 
-    public function update(StoreBookingRequest $request, int $id)
+    public function update(StoreBookingRequest $request, Booking $booking): BookingResource
     {
-        $booking = Booking::findOrFail($id);
-
         //validar datos
         $validateData = $request->validated();
 
@@ -92,13 +88,12 @@ class BookingController extends Controller
             'status'       => $validateData['status'],
         ]);
 
-        return response()->json($booking, 200);
+        return new BookingResource($booking);
     }
 
-    public function destroy(int $id)
+    public function destroy(Booking $booking)
     {
-        $booking = Booking::findOrFail($id);
         $booking->delete();
-        return response()->json(null, 204);
+        return new BookingResource($booking);
     }
 }

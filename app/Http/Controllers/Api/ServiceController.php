@@ -28,12 +28,12 @@ class ServiceController extends Controller
             ->setStatusCode(201);
     }
 
-    public function show(Service $service)
+    public function show(Service $service): ServiceResource
     {
         return new ServiceResource($service);
     }
 
-    public function update(UpdateServiceRequest $request, Service $service)
+    public function update(UpdateServiceRequest $request, Service $service): ServiceResource
     {
         $service->update($request->validated());
 
