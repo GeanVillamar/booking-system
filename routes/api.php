@@ -5,9 +5,22 @@ use App\Http\Controllers\Api\ServiceController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Support\Facades\Route;
 
-Route::apiResource('users', UserController::class);
-Route::apiResource('services', ServiceController::class);
-Route::apiResource('bookings', BookingController::class);
+
+/***************
+ * API Routes
+ * Here is where you can register API routes for your application. These
+ * routes are loaded by the RouteServiceProvider within a group which
+ * is assigned the "api" middleware group. Enjoy building your API!
+ ***************/
+Route::middleware('auth:sanctum')->group(function () {
+    Route::apiResource('users', UserController::class);
+});
+Route::middleware('auth:sanctum')->group(function () {
+    Route::apiResource('services', ServiceController::class);
+});
+Route::middleware('auth:sanctum')->group(function () {
+    Route::apiResource('bookings', BookingController::class);
+});
 
 //endpoint for bookings
 Route::get('/bookings', [BookingController::class, 'index']);
