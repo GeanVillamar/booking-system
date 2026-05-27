@@ -36,14 +36,14 @@ class BookingTest extends TestCase
             'user_id' => $user->id,
             'service_id' => $service->id,
             'booking_date' => '2026-05-01',
-            'booking_time' => '09:00:00',
+            'booking_time' => '09:00',
         ]);
 
-        $response->assertStatus(200);
+        $response->assertStatus(201);
 
         $this->assertDatabaseHas('bookings', [
             'service_id' => $service->id,
-            'booking_time' => '09:00:00',
+            'booking_time' => '09:00',
         ]);
     }
 
