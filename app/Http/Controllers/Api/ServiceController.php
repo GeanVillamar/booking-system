@@ -46,6 +46,6 @@ class ServiceController extends Controller
 
         return response()->json([
             'message' => 'Service deleted successfully.',
-        ], 200);
+        ], 204);
     }
 }

@@ -90,4 +90,20 @@ class ServiceControllerTest extends TestCase
             'price' => 149.99,
         ]);
     }
+    // =========================================================
+    // DELETE
+    // =========================================================
+    public function test_destroy_deletes_service_and_returns_204(): void
+    {
+        Sanctum::actingAs(User::factory()->create());
+        $service = Service::factory()->create();
+
+        $response = $this->deleteJson("api/services/{$service->id}");
+
+        $response->assertStatus(204);
+
+        $this->assertDatabaseMissing('services', [
+            'id' => $service->id,
+        ]);
+    }
 }
