@@ -57,7 +57,7 @@ class BookingTest extends TestCase
             'user_id' => $user->id,
             'service_id' => $service->id,
             'booking_date' => '2026-05-01',
-            'booking_time' => '09:00:00',
+            'booking_time' => '09:00',
         ]);
 
         $response->assertStatus(400);
@@ -80,7 +80,7 @@ class BookingTest extends TestCase
             'user_id' => $user->id,
             'service_id' => $service->id,
             'booking_date' => '2026-05-01',
-            'booking_time' => '09:00:00',
+            'booking_time' => '09:00',
             'status' => 'confirmed',
         ]);
 
@@ -88,9 +88,10 @@ class BookingTest extends TestCase
             'user_id' => $user->id,
             'service_id' => $service->id,
             'booking_date' => '2026-05-01',
-            'booking_time' => '09:00:00',
+            'booking_time' => '09:00',
         ]);
 
         $response->assertStatus(400);
+        $response->dump();
     }
 }

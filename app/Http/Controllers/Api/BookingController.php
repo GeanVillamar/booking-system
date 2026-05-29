@@ -24,12 +24,21 @@ class BookingController extends Controller
 
     public function store(StoreBookingRequest $request)
     {
-
-        //validar datos desde el FormRequest
         $validateData = $request->validated();
 
         try {
             $booking = DB::transaction(function () use ($validateData) {
+
+                // verificar disponibilidad
+                $isAvailable = Availability::where('service_id', $validateData['service_id'])
+                    ->where('available_date', $validateData['booking_date'])
+                    ->where('start_time', '<=', $validateData['booking_time'])
+                    ->where('end_time', '>=', $validateData['booking_time'])
+                    ->exists();
+
+                if (!$isAvailable) {
+                    throw new \Exception('Horario no disponible', 400);
+                }
 
                 // evitar reservas duplicadas
                 $exists = Booking::where('service_id', $validateData['service_id'])
@@ -38,7 +47,7 @@ class BookingController extends Controller
                     ->exists();
 
                 if ($exists) {
-                    abort(400, 'Booking already exists for this time slot');
+                    throw new \Exception('Ya existe una reserva para este espacio de tiempo', 400);
                 }
 
                 $booking = Booking::create([
@@ -55,19 +64,20 @@ class BookingController extends Controller
                     ->first();
 
                 if ($availability) {
-                    $availability->update([
-                        'is_available' => false
-                    ]);
+                    $availability->update(['is_available' => false]);
                 }
 
                 return (new BookingResource($booking))->resolve();
             });
 
             return response()->json($booking, 201);
-        } catch (\Throwable $e) {
+        } catch (\Exception $e) {
+            // Distinguir errores de negocio (400) de errores inesperados (500)
+            $code = $e->getCode() === 400 ? 400 : 500;
+
             return response()->json([
-                'error' => $e->getMessage()
-            ], 500);
+                'message' => $e->getMessage()
+            ], $code);
         }
     }
 
