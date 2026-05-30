@@ -36,6 +36,7 @@ erDiagram
         string name
         text description
         decimal price
+        int duration_minutes
         timestamp created_at
         timestamp updated_at
     }
@@ -44,9 +45,11 @@ erDiagram
         int id PK
         int user_id FK
         int service_id FK
+        int availabilities FK
         date booking_date
         time booking_time
         string status
+        decimal price_at_booking
         timestamp created_at
         timestamp updated_at
     }
@@ -57,6 +60,7 @@ erDiagram
         date available_date
         time start_time
         time end_time
+        boolean is_booked
         timestamp created_at
         timestamp updated_at
     }
