@@ -35,8 +35,7 @@ erDiagram
         int id PK
         string name
         text description
-        decimal price
-        int duration_minutes
+        decimal price_base
         timestamp created_at
         timestamp updated_at
     }
@@ -45,7 +44,6 @@ erDiagram
         int id PK
         int user_id FK
         int service_id FK
-        int availabilities FK
         date booking_date
         time booking_time
         string status
@@ -60,7 +58,6 @@ erDiagram
         date available_date
         time start_time
         time end_time
-        boolean is_booked
         timestamp created_at
         timestamp updated_at
     }
@@ -68,6 +65,55 @@ erDiagram
 
     Users ||--o{ Bookings : makes
     Services ||--o{ Bookings : booked
+    Services ||--o{ Availabilities : has
+
+```
+
+## Normalizacion del Diagrama Entidad Relación
+
+```mermaid
+erDiagram
+    Users {
+        int id PK
+        string name
+        string email
+        string password
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    Services {
+        int id PK
+        string name
+        text description
+        decimal base_price
+        int duration_minutes
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    Bookings {
+        int id PK
+        int user_id FK
+        int availability_id FK
+        string status
+        decimal price_at_booking
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    Availabilities {
+        int id PK
+        int service_id FK
+        date available_date
+        time start_time
+        time end_time
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    Users ||--o{ Bookings : makes
+    Availabilities ||--o{ Bookings : booked
     Services ||--o{ Availabilities : has
 
 ```
