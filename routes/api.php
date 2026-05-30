@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AvailabilityController;
 use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\ServiceController;
 use App\Http\Controllers\Api\UserController;
@@ -25,6 +26,9 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('bookings', BookingController::class);
 });
+Route::middleware('auth:sanctum')->group(function () {
+    Route::apiResource('availabilities', AvailabilityController::class);
+});
 
 //endpoint for bookings
 Route::get('/bookings', [BookingController::class, 'index']);
@@ -46,3 +50,8 @@ Route::post('/users', [UserController::class, 'store']);
 Route::get('/users/{id}', [UserController::class, 'show']);
 Route::put('/users/{id}', [UserController::class, 'update']);
 Route::delete('/users/{id}', [UserController::class, 'destroy']);
+
+//endpoint for availabilities
+Route::get('/availabilities', [AvailabilityController::class, 'index']);
+Route::post('/availabilities', [AvailabilityController::class, 'store']);
+Route::get('/availabilities/{id}', [AvailabilityController::class, 'show']);

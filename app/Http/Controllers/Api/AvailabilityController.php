@@ -17,4 +17,29 @@ class AvailabilityController extends Controller
 
         return response()->json($availabilities, 200);
     }
+
+    function store(Request $request)
+    {
+        $validated = $request->validate([
+            'service_id' => 'required|exists:services,id',
+            'available_date' => 'required|date',
+            'start_time' => 'required',
+            'end_time' => 'required',
+        ]);
+
+        $availability = \App\Models\Availability::create($validated);
+
+        return response()->json($availability, 201);
+    }
+
+    function show(int $id)
+    {
+        $availability = \App\Models\Availability::find($id);
+
+        if (!$availability) {
+            return response()->json(['message' => 'Availability not found'], 404);
+        }
+
+        return response()->json($availability, 200);
+    }
 }
