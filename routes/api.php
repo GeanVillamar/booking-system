@@ -7,28 +7,15 @@ use App\Http\Controllers\Api\UserController;
 use Illuminate\Support\Facades\Route;
 
 
-/***************
- * API Routes
- * Here is where you can register API routes for your application. These
- * routes are loaded by the RouteServiceProvider within a group which
- * is assigned the "api" middleware group. Enjoy building your API!
- ***************/
-
+//Sanctum authentication middleware for API routes
 // Route::middleware('auth:sanctum')->group(function () {
 //     Route::apiResource('users', UserController::class);
 // });
 
 Route::apiResource('users', UserController::class);
-
-Route::middleware('auth:sanctum')->group(function () {
-    Route::apiResource('services', ServiceController::class);
-});
-Route::middleware('auth:sanctum')->group(function () {
-    Route::apiResource('bookings', BookingController::class);
-});
-Route::middleware('auth:sanctum')->group(function () {
-    Route::apiResource('availabilities', AvailabilityController::class);
-});
+Route::apiResource('services', ServiceController::class);
+Route::apiResource('bookings', BookingController::class);
+Route::apiResource('availabilities', AvailabilityController::class);
 
 //endpoint for bookings
 Route::get('/bookings', [BookingController::class, 'index']);

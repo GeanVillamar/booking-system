@@ -1,6 +1,6 @@
 # Sistema de Reserva de Libros
 
-Proyecto desarrollado en Laravel para gestionar reservas de libros.
+Proyecto desarrollado en Laravel para gestionar reservas de citas medicas.
 
 ## Tecnologías
 
