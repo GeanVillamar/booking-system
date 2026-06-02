@@ -7,9 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 class Availability extends Model
 {
     protected $fillable = [
-        'service_id',
+        'employee_id',
         'available_date',
         'start_time',
         'end_time',
     ];
+
+    public function employee()
+    {
+        return $this->belongsTo(Employee::class);
+    }
 }

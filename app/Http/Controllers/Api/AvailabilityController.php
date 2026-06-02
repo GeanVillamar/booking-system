@@ -11,7 +11,7 @@ class AvailabilityController extends Controller
 {
     function index(Request $request)
     {
-        $availabilities = \App\Models\Availability::where('service_id', $request->service_id)
+        $availabilities = \App\Models\Availability::where('employee_id', $request->employee_id)
             ->where('available_date', $request->available_date)
             ->get();
 
@@ -21,7 +21,7 @@ class AvailabilityController extends Controller
     function store(Request $request)
     {
         $validated = $request->validate([
-            'service_id' => 'required|exists:services,id',
+            'employee_id' => 'required|exists:employees,id',
             'available_date' => 'required|date',
             'start_time' => 'required',
             'end_time' => 'required',

@@ -16,7 +16,7 @@ class BookingController extends Controller
     public function index()
     {
         $bookings = Booking::query()
-            ->with(['user', 'service'])
+            ->with(['user', 'employee', 'service'])
             ->latest()
             ->paginate(5);
         return BookingResource::collection($bookings);
@@ -30,7 +30,7 @@ class BookingController extends Controller
             $booking = DB::transaction(function () use ($validateData) {
 
                 // verificar disponibilidad
-                $isAvailable = Availability::where('service_id', $validateData['service_id'])
+                $isAvailable = Availability::where('employee_id', $validateData['employee_id'])
                     ->where('available_date', $validateData['booking_date'])
                     ->where('start_time', '<=', $validateData['booking_time'])
                     ->where('end_time', '>=', $validateData['booking_time'])
@@ -41,7 +41,7 @@ class BookingController extends Controller
                 }
 
                 // evitar reservas duplicadas
-                $exists = Booking::where('service_id', $validateData['service_id'])
+                $exists = Booking::where('employee_id', $validateData['employee_id'])
                     ->where('booking_date', $validateData['booking_date'])
                     ->where('booking_time', $validateData['booking_time'])
                     ->exists();
@@ -52,13 +52,16 @@ class BookingController extends Controller
 
                 $booking = Booking::create([
                     'user_id'      => $validateData['user_id'],
+                    'employee_id'  => $validateData['employee_id'],
                     'service_id'   => $validateData['service_id'],
                     'booking_date' => $validateData['booking_date'],
                     'booking_time' => $validateData['booking_time'],
+                    'price_at_booking' => $validateData['price_at_booking'] ?? null,
+
                 ]);
 
                 // actualizar disponibilidad
-                $availability = Availability::where('service_id', $validateData['service_id'])
+                $availability = Availability::where('employee_id', $validateData['employee_id'])
                     ->where('available_date', $validateData['booking_date'])
                     ->where('start_time', $validateData['booking_time'])
                     ->first();
@@ -96,6 +99,7 @@ class BookingController extends Controller
             'booking_date' => $validateData['booking_date'],
             'booking_time' => $validateData['booking_time'],
             'status'       => $validateData['status'],
+            'price_at_booking' => $validateData['price_at_booking'] ?? $booking->price_at_booking,
         ]);
 
         return new BookingResource($booking);

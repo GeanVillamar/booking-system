@@ -15,10 +15,12 @@ class Booking extends Model
 
     protected $fillable = [
         'user_id',
+        'employee_id',
         'service_id',
         'booking_date',
         'booking_time',
         'status',
+        'price_at_booking',
     ];
 
     /** 
@@ -27,6 +29,13 @@ class Booking extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+    /** 
+     * Get the employee that is assigned to the booking.
+     */
+    public function employee()
+    {
+        return $this->belongsTo(Employee::class);
     }
     /** 
      * Get the service that is booked.

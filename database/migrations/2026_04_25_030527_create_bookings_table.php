@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             // Relaciones
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('employee_id')->constrained()->cascadeOnDelete();
             $table->foreignId('service_id')->constrained()->cascadeOnDelete();
 
             // Datos de reserva
@@ -24,6 +25,10 @@ return new class extends Migration
             // Estado (mejor práctica: enum)
             $table->enum('status', ['pending', 'confirmed', 'cancelled'])
                 ->default('pending');
+
+            $table->decimal('price_at_booking', 10, 2)->nullable();
+
+            $table->unique(['employee_id', 'booking_date', 'booking_time']);
 
             $table->timestamps();
         });

@@ -25,7 +25,7 @@ class StoreServiceRequest extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'price' => 'required|numeric|min:0',
+            'price_base' => 'required|numeric|min:0',
         ];
     }
 
@@ -36,9 +36,9 @@ class StoreServiceRequest extends FormRequest
             'name.string' => 'The name must be a string.',
             'name.max' => 'The name may not be greater than 255 characters.',
             'description.string' => 'The description must be a string.',
-            'price.required' => 'The price field is required.',
-            'price.numeric' => 'The price must be a number.',
-            'price.min' => 'The price must be at least 0.',
+            'price_base.required' => 'The price field is required.',
+            'price_base.numeric' => 'The price must be a number.',
+            'price_base.min' => 'The price must be at least 0.',
         ];
     }
 }
