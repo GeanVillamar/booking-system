@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\EmployeeController;
 use App\Http\Controllers\Api\AvailabilityController;
 use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\ServiceController;
@@ -16,6 +17,7 @@ Route::apiResource('users', UserController::class);
 Route::apiResource('services', ServiceController::class);
 Route::apiResource('bookings', BookingController::class);
 Route::apiResource('availabilities', AvailabilityController::class);
+Route::apiResource('employees', EmployeeController::class);
 
 //endpoint for bookings
 Route::get('/bookings', [BookingController::class, 'index']);
@@ -42,3 +44,10 @@ Route::delete('/users/{id}', [UserController::class, 'destroy']);
 Route::get('/availabilities', [AvailabilityController::class, 'index']);
 Route::post('/availabilities', [AvailabilityController::class, 'store']);
 Route::get('/availabilities/{id}', [AvailabilityController::class, 'show']);
+
+//endpoint for employees
+Route::get('/employees', [EmployeeController::class, 'index']);
+Route::post('/employees', [EmployeeController::class, 'store']);
+Route::get('/employees/{id}', [EmployeeController::class, 'show']);
+Route::put('/employees/{id}', [EmployeeController::class, 'update']);
+Route::delete('/employees/{id}', [EmployeeController::class, 'destroy']);
