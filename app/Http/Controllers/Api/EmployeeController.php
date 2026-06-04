@@ -3,38 +3,48 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Http\Resources\EmployeeResource;
+use App\Models\Employee;
+use App\Http\Requests\StoreEmployeeRequest;
 
 class EmployeeController extends Controller
 {
-    function index()
+    public function index()
     {
-        $employees = \App\Models\Employee::all();
-        return response()->json($employees, 200);
+        $employees = Employee::query()
+            ->latest()
+            ->paginate(5);
+        return EmployeeResource::collection($employees);
     }
 
-    function store(Request $request)
+    public function store(StoreEmployeeRequest $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string',
-            'specialty' => 'required|string',
-            'email' => 'required|email|unique:employees,email',
-        ]);
-
-        $employee = \App\Models\Employee::create($validated);
-        $employee->services()->attach($request->service_id);
-
-        return response()->json($employee, 201);
+        $Employee = Employee::create($request->validated());
+        $Employee->services()->attach($request->service_id);
+        return (new EmployeeResource($Employee))
+            ->response()
+            ->setStatusCode(201);
     }
 
-    function show(int $id)
+    public function show(Employee $employee): EmployeeResource
     {
-        $employee = \App\Models\Employee::find($id);
+        return new EmployeeResource($employee);
+    }
 
-        if (!$employee) {
-            return response()->json(['message' => 'Employee not found'], 404);
-        }
+    public function update(StoreEmployeeRequest $request, Employee $employee): EmployeeResource
+    {
+        $employee->update($request->validated());
+        $employee->services()->sync($request->service_id);
 
-        return response()->json($employee, 200);
+        return new EmployeeResource($employee->fresh());
+    }
+
+    public function destroy(Employee $employee)
+    {
+        $employee->delete();
+
+        return response()->json([
+            'message' => 'Employee deleted successfully.',
+        ], 204);
     }
 }

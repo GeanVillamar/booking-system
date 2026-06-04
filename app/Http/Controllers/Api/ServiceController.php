@@ -23,6 +23,7 @@ class ServiceController extends Controller
     public function store(StoreServiceRequest $request): JsonResponse
     {
         $service = Service::create($request->validated());
+        $service->employees()->attach($request->employee_id);
         return (new ServiceResource($service))
             ->response()
             ->setStatusCode(201);
@@ -36,7 +37,7 @@ class ServiceController extends Controller
     public function update(UpdateServiceRequest $request, Service $service): ServiceResource
     {
         $service->update($request->validated());
-
+        $service->employees()->sync($request->employee_id);
         return new ServiceResource($service->fresh());
     }
 
