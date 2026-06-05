@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use App\Models\User;
+use App\Models\Employee;
 use App\Models\Service;
 use App\Models\Availability;
 use App\Models\Booking;
@@ -23,10 +24,11 @@ class BookingTest extends TestCase
     public function test_user_can_create_booking()
     {
         $user = User::factory()->create();
+        $employee = Employee::factory()->create();
         $service = Service::factory()->create();
 
         Availability::create([
-            'service_id' => $service->id,
+            'employee_id' => $employee->id,
             'available_date' => '2026-05-01',
             'start_time' => '08:00:00',
             'end_time' => '12:00:00',
@@ -34,6 +36,7 @@ class BookingTest extends TestCase
 
         $response = $this->postJson('/api/bookings', [
             'user_id' => $user->id,
+            'employee_id' => $employee->id,
             'service_id' => $service->id,
             'booking_date' => '2026-05-01',
             'booking_time' => '09:00',
@@ -42,7 +45,7 @@ class BookingTest extends TestCase
         $response->assertStatus(201);
 
         $this->assertDatabaseHas('bookings', [
-            'service_id' => $service->id,
+            'employee_id' => $employee->id,
             'booking_time' => '09:00',
         ]);
     }
@@ -51,10 +54,12 @@ class BookingTest extends TestCase
     public function test_cannot_book_if_not_available()
     {
         $user = User::factory()->create();
+        $employee = Employee::factory()->create();
         $service = Service::factory()->create();
 
         $response = $this->postJson('/api/bookings', [
             'user_id' => $user->id,
+            'employee_id' => $employee->id,
             'service_id' => $service->id,
             'booking_date' => '2026-05-01',
             'booking_time' => '09:00',
@@ -67,10 +72,11 @@ class BookingTest extends TestCase
     public function test_cannot_book_same_time_twice()
     {
         $user = User::factory()->create();
+        $employee = Employee::factory()->create();
         $service = Service::factory()->create();
 
         Availability::create([
-            'service_id' => $service->id,
+            'employee_id' => $employee->id,
             'available_date' => '2026-05-01',
             'start_time' => '08:00:00',
             'end_time' => '12:00:00',
@@ -78,6 +84,7 @@ class BookingTest extends TestCase
 
         Booking::create([
             'user_id' => $user->id,
+            'employee_id' => $employee->id,
             'service_id' => $service->id,
             'booking_date' => '2026-05-01',
             'booking_time' => '09:00',
@@ -86,6 +93,7 @@ class BookingTest extends TestCase
 
         $response = $this->postJson('/api/bookings', [
             'user_id' => $user->id,
+            'employee_id' => $employee->id,
             'service_id' => $service->id,
             'booking_date' => '2026-05-01',
             'booking_time' => '09:00',
