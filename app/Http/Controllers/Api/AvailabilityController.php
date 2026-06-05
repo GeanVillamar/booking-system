@@ -3,43 +3,48 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Auth\Events\Validated;
+use App\Models\Availability;
 use Illuminate\Http\Request;
-
+use Illuminate\Http\JsonResponse;
+use App\Http\Resources\AvailabilityResource;
+use App\Http\Requests\StoreAvailabilityRequest;
 
 class AvailabilityController extends Controller
 {
     function index(Request $request)
     {
-        $availabilities = \App\Models\Availability::where('employee_id', $request->employee_id)
-            ->where('available_date', $request->available_date)
-            ->get();
+        $availabilities = Availability::query()
+            ->latest()
+            ->paginate(10);
 
-        return response()->json($availabilities, 200);
+
+        return AvailabilityResource::collection($availabilities);
     }
 
-    function store(Request $request)
+    function store(StoreAvailabilityRequest $request): JsonResponse
     {
-        $validated = $request->validate([
-            'employee_id' => 'required|exists:employees,id',
-            'available_date' => 'required|date',
-            'start_time' => 'required',
-            'end_time' => 'required',
-        ]);
-
-        $availability = \App\Models\Availability::create($validated);
-
-        return response()->json($availability, 201);
+        $availability = Availability::create($request->validated());
+        return (new AvailabilityResource($availability))
+            ->response()
+            ->setStatusCode(201);
     }
 
-    function show(int $id)
+    function show(Availability $availability): AvailabilityResource
     {
-        $availability = \App\Models\Availability::find($id);
+        return new AvailabilityResource($availability);
+    }
 
-        if (!$availability) {
-            return response()->json(['message' => 'Availability not found'], 404);
-        }
+    function update(StoreAvailabilityRequest $request, Availability $availability): AvailabilityResource
+    {
+        $availability->update($request->validated());
+        return new AvailabilityResource($availability->fresh());
+    }
 
-        return response()->json($availability, 200);
+    function destroy(Availability $availability): JsonResponse
+    {
+        $availability->delete();
+        return response()->json([
+            'message' => 'Availability deleted successfully.',
+        ], 200);
     }
 }
