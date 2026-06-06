@@ -24,7 +24,7 @@ class ServiceControllerTest extends TestCase
         $response->assertStatus(200)
             ->assertJsonStructure([
                 'data' => [
-                    '*' => ['id', 'name', 'description', 'price']
+                    '*' => ['id', 'name', 'description', 'price_base']
                 ],
                 'links',
                 'meta',
@@ -39,7 +39,7 @@ class ServiceControllerTest extends TestCase
         $payload = [
             'name' => 'Test Service',
             'description' => 'This is a test service.',
-            'price' => 99.99,
+            'price_base' => 99.99,
         ];
 
         $response = $this->postJson('api/services', $payload);
@@ -48,13 +48,13 @@ class ServiceControllerTest extends TestCase
             ->assertJsonFragment([
                 'name' => 'Test Service',
                 'description' => 'This is a test service.',
-                'price' => 99.99,
+                'price_base' => 99.99,
             ]);
 
         $this->assertDatabaseHas('services', [
             'name' => 'Test Service',
             'description' => 'This is a test service.',
-            'price' => 99.99,
+            'price_base' => 99.99,
         ]);
     }
 
@@ -70,7 +70,7 @@ class ServiceControllerTest extends TestCase
         $payload = [
             'name' => 'Updated Service',
             'description' => 'This service has been updated.',
-            'price' => 149.99,
+            'price_base' => 149.99,
         ];
 
         $response = $this->putJson("api/services/{$service->id}", $payload);
@@ -80,14 +80,14 @@ class ServiceControllerTest extends TestCase
                 'id' => $service->id,
                 'name' => 'Updated Service',
                 'description' => 'This service has been updated.',
-                'price' => 149.99,
+                'price_base' => 149.99,
             ]);
 
         $this->assertDatabaseHas('services', [
             'id' => $service->id,
             'name' => 'Updated Service',
             'description' => 'This service has been updated.',
-            'price' => 149.99,
+            'price_base' => 149.99,
         ]);
     }
     // =========================================================
