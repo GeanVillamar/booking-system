@@ -71,6 +71,7 @@ class UserControllerTest extends TestCase
             ->assertJsonPath('data.name', 'John Doe')
             ->assertJsonPath('data.email', 'john@example.com');
 
+
         $this->assertDatabaseHas('users', [
             'name'  => 'John Doe',
             'email' => 'john@example.com',

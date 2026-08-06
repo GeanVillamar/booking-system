@@ -107,3 +107,16 @@ erDiagram
 -   5. Quinta regla: Guardar el precio histórico
 
 -   6. Sexta regla: Límite de reservas por paciente
+
+## Test Realizados
+
+Booking Test
+
+-   1. Crear reserva.
+-   2. Cancelar reserva.
+-   3. Confirmar reserva.
+-   4. Ver disponibilidad.
+-   5. Calcular precio.
+-   6. Validar conflictos de horarios.
+-   7. Registrar pago.
+-   8. Enviar notificaciones.

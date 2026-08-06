@@ -50,6 +50,7 @@ class BookingController extends Controller
                     throw new \Exception('Ya existe una reserva para este espacio de tiempo', 400);
                 }
 
+                //crear reserva
                 $booking = Booking::create([
                     'user_id'      => $validateData['user_id'],
                     'employee_id'  => $validateData['employee_id'],
@@ -65,10 +66,6 @@ class BookingController extends Controller
                     ->where('available_date', $validateData['booking_date'])
                     ->where('start_time', $validateData['booking_time'])
                     ->first();
-
-                if ($availability) {
-                    $availability->update(['is_available' => false]);
-                }
 
                 return (new BookingResource($booking))->resolve();
             });
@@ -107,6 +104,7 @@ class BookingController extends Controller
 
     public function destroy(Booking $booking)
     {
+        //eliminar reserva
         $booking->delete();
         return new BookingResource($booking);
     }
